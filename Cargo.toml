@@ -1,0 +1,14 @@
+[package]
+name = "zk-proofs"
+version = "0.1.0"
+edition = "2024"
+authors = ["Vladimir Leshkevich <echostacc@pm.me>"]
+description = "Zero-Knowledge Proofs"
+repository = "https://github.com/echostacc/zk-proofs"
+license = "MIT"
+keywords = ["zero-knowledge", "proofs", "cryptography", "rust"]
+categories = ["Cryptography", "Security", "Zero-Knowledge Proofs"]
+readme = "README.md"
+
+[dependencies]
+rand = "0.8"
