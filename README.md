@@ -29,7 +29,6 @@ cargo run --example schnorr_example
 - **PLONK** - Universal and updatable trusted setup
 - **Bulletproofs** - Short non-interactive zero-knowledge proofs
 - **zk-STARKs** - Transparent (no trusted setup) proofs
-- **Sigma Protocols** - Foundation for many ZK systems
 - **Ring Signatures** - Anonymous signatures
 - **Pedersen Commitments** - Hiding and binding commitments
 - ... and more
