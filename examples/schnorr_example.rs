@@ -1,46 +1,28 @@
-use zk_proofs::schnorr::{SchnorrKeypair, SchnorrParams, SchnorrProof};
+use zk_proofs::{Error, OsRng, SchnorrChallenge, SchnorrCommitment, SchnorrProof, SecretKey};
 
-fn schnorr_demo() {
-    let params = SchnorrParams::new();
-    let keypair = SchnorrKeypair::generate(&params);
+fn main() -> Result<(), Error> {
+    let mut rng = OsRng;
+    let key = SecretKey::generate(&mut rng);
+    let public = key.public_key();
+    println!("Schnorr proofs over Ristretto255 (educational, unaudited)");
+    println!("Public key: {:02x?}", public.to_bytes());
 
-    println!("Schnorr Zero-Knowledge Proof Demo");
-    println!("============================\n");
-    println!("Parameters: p = {}, g = {}", params.p, params.g);
-    println!("Prover's secret key: {}", keypair.secret_key);
-    println!("Public key: {}", keypair.public_key);
+    let prover = SchnorrCommitment::new(&key, &mut rng);
+    let commitment = prover.commitment();
+    println!("1. Prover sends commitment: {commitment:02x?}");
+    let challenge = SchnorrChallenge::generate(&mut rng);
+    println!("2. Verifier sends challenge: {:02x?}", challenge.to_bytes());
+    let response = prover.respond(&challenge);
+    println!("3. Prover sends response: {:02x?}", response.to_bytes());
+    response.verify(&public, commitment, &challenge)?;
+    println!("Interactive proof verified.");
 
-    // Commitment
-    let (commitment, r) = SchnorrProof::create_commitment(&params);
-    println!("\n--- Phase 1: Commitment ---");
-    println!("Random r = {}", r);
-    println!("Prover sends commitment t = {}", commitment);
-
-    // Challenge (verifier generates a random challenge)
-    use rand::Rng;
-    let mut rng = rand::thread_rng();
-    let challenge = rng.gen_range(1..params.p); // random challenge in range [1, p-1]
-    println!("\n--- Phase 2: Challenge ---");
-    println!("Verifier sends challenge c = {}", challenge);
-
-    // Response
-    let response = SchnorrProof::create_response(r, challenge, keypair.secret_key, params.p);
-    println!("\n--- Phase 3: Response ---");
-    println!("Prover sends response s = {}", response);
-
-    // Constructing the proof and verifying it
-    let proof = SchnorrProof {
-        commitment,
-        challenge,
-        response,
-    };
-
-    // Verification
-    let is_valid = proof.verify(&params, keypair.public_key);
-    println!("\n--- Phase 4: Verification ---");
-    println!("Proof is valid: {}", is_valid);
-}
-
-fn main() {
-    schnorr_demo();
+    let context = b"zk-proofs/example/schnorr/session-1";
+    let proof = SchnorrProof::prove(&key, context, &mut rng);
+    let received = SchnorrProof::from_bytes(&proof.to_bytes())?;
+    received.verify(&public, context)?;
+    println!("Non-interactive proof verified (64 bytes).");
+    assert!(received.verify(&public, b"different-session").is_err());
+    println!("Changed context rejected.");
+    Ok(())
 }

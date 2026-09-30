@@ -1,14 +1,21 @@
 [package]
 name = "zk-proofs"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
+rust-version = "1.85"
 authors = ["Vladimir Leshkevich <echostacc@pm.me>"]
-description = "Zero-Knowledge Proofs"
+description = "Educational Schnorr proofs, Pedersen commitments, and ring signatures over Ristretto255"
 repository = "https://github.com/echostacc/zk-proofs"
 license = "MIT"
 keywords = ["zero-knowledge", "proofs", "cryptography", "rust"]
-categories = ["Cryptography", "Security", "Zero-Knowledge Proofs"]
+categories = ["cryptography"]
 readme = "README.md"
 
 [dependencies]
-rand = "0.8"
+curve25519-dalek = "5.0"
+rand_core = { version = "0.6", features = ["getrandom"] }
+sha2 = "0.10"
+zeroize = { version = "1.8", features = ["derive"] }
+
+[dev-dependencies]
+rand_chacha = "0.3"
